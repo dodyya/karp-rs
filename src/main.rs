@@ -174,8 +174,12 @@ impl MLP {
     }
 
     fn descend(&self) {
-        for p in self.parameters() {
-            p.set_val(p.val() - 0.05 * p.grad());
+        for l in &self.layers {
+            for n in &l.neurons {
+                for w in &n.weights {
+                    w.descend();
+                }
+            }
         }
     }
 }
