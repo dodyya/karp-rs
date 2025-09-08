@@ -1,6 +1,6 @@
 # karp
 
-A compact Rust port inspired by Andrej Karpathy’s “micrograd/autograd” tutorials. This crate implements a tiny reverse‑mode automatic differentiation engine (autograd) with a minimal tensor/value type, a computation graph, and gradient backpropagation.
+A compact Rust port inspired by Andrej Karpathy’s “micrograd/autograd” tutorials. This crate implements a tiny reverse‑mode automatic differentiation engine (autograd) with a minimal value type, a computation graph, and gradient backpropagation.
 
 ## Background: following Karpathy’s tutorial
 
