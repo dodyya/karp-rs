@@ -15,7 +15,7 @@ While Karpathy’s original reference code is in Python, this implementation use
 References:
 
 - micrograd (Python): https://github.com/karpathy/micrograd
-- Lecture/Tutorial video(s): search for “Andrej Karpathy micrograd”
+- Lecture/Tutorial video(s): https://www.youtube.com/watch?v=VMj-3S1tku0
 
 ## What is autograd? (Reverse‑mode autodiff, briefly)
 
@@ -32,7 +32,7 @@ Why reverse mode? When you have one (or few) scalar outputs and many inputs/para
 - Each node holds: value (data), grad (initialized to 0), parents, and a backward function that distributes its gradient to parents.
 - To backprop:
     - Set loss.grad = 1
-    - Build a topological order of nodes reachable from loss
+    - Build a topological order of nodes reachable from loss to ensure parent gradients are comprehensive
     - Traverse in reverse order; call each node’s backward to accumulate parent grads
 
 ## The reference/ownership model used here (and why)
@@ -40,17 +40,10 @@ Why reverse mode? When you have one (or few) scalar outputs and many inputs/para
 Rust’s ownership rules make dynamic computation graphs trickier than in Python. This implementation uses reference‑counted pointers to express shared graph topology safely at runtime:
 
 - Rc/Arc for shared ownership of nodes (graph edges may point to the same parent multiple times). In single‑threaded builds, `Rc<RefCell<Node>>` is typical; for thread‑safe variants, `Arc<Mutex<Node>>` could be used.
-- Interior mutability (RefCell/Mutex) to allow:
+- Interior mutability (RefCell) to allow:
     - Accumulating `grad` during backprop even when multiple children update the same parent
     - Storing closures/backward fns that mutate parent gradients
 - Weak references (Weak) to avoid cycles where appropriate (e.g., parent lists) so nodes can be dropped when no longer needed.
-
-Trade‑offs and rationale:
-
-- Safety: The borrow checker prevents aliasing bugs; RefCell/Mutex gates mutation at runtime.
-- Simplicity: Reference‑counted nodes keep the code compact without a custom arena or lifetime gymnastics.
-- Ergonomics: Graph nodes can be cloned cheaply (clones of Rc/Arc), making operator overloading straightforward.
-- Performance: Adequate for educational and small models. For larger workloads, consider arenas, explicit topological storage, or custom gradient tapes to reduce pointer chasing and synchronization.
 
 ## Project layout
 
@@ -62,7 +55,7 @@ Trade‑offs and rationale:
 Build and run the pseudo-demo:
 
 ```bash
-cargo run --release
+cargo run --debug
 ```
 
 Should output:
@@ -99,7 +92,6 @@ fn main() {
 }
 ```
 
-Note: exact API names may differ slightly; see `src/value.rs` for the authoritative interface.
 
 ## Extending
 
